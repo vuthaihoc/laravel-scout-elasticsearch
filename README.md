@@ -181,9 +181,9 @@ class Product extends Model
 This example will make sure the categories relationship gets always loaded on the model when 
 saving it.
 ### Zero downtime reimport
-While working in production, to keep your existing search experience available while reimporting your data, you also can use `scout:import` Artisan command:  
+While working in production, to keep your existing search experience available while reimporting your data, you also can use `scout:import2` Artisan command:  
 
-`php artisan scout:import`
+`php artisan scout:import2`
 
 The command create new temporary index, import all models to it, and then switch to the index and remove old index.
 
