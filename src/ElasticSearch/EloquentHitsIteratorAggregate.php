@@ -10,7 +10,7 @@ use Traversable;
 /**
  * @internal
  */
-final class EloquentHitsIteratorAggregate implements IteratorAggregate
+final class EloquentHitsIteratorAggregate implements HitsIteratorAggregate
 {
     /**
      * @var array
@@ -41,7 +41,7 @@ final class EloquentHitsIteratorAggregate implements IteratorAggregate
      *
      * @since 5.0.0
      */
-    public function getIterator(): Traversable
+    public function getIterator() : Traversable
     {
         $hits = collect();
         if ($this->results['hits']['total']) {
