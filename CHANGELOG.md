@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 
+## [7.3.0] - 2023-07-31
+### Added
+- [Added support for `makeSearchableUsing` in Laravel Scout. This allows you to prepare and modify a collection of models before they are made searchable. For example, you may want to eager load a relationship so that the relationship data can be efficiently added to your search index.](https://github.com/matchish/laravel-scout-elasticsearch/pull/253)
+
+## [7.2.2] - 2023-06-06
+### Fixed
+- [No duplicates in search on reindex anymore. updates/inserts will be visible only after reindex. For most projects should be ok but for some could be breaking changes](https://github.com/matchish/laravel-scout-elasticsearch/issues/247)
+
 ## [7.0.0] - 2023-02-01
 ### Changed
 - No duplicates in search on reindex anymore. updates/inserts will be visible only after reindex. For most projects should be ok but for some could be breaking changes
