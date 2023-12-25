@@ -21,7 +21,11 @@ final class SearchFactory
     public static function create(Builder $builder, array $options = []): Search
     {
         $search = new Search();
-        $query = new QueryStringQuery($builder->query);
+        if($builder->query instanceof BuilderInterface){
+            $query = $builder->query;
+        }else{
+            $query = new QueryStringQuery($builder->query);
+        }
         if (static::hasWhereFilters($builder)) {
             $boolQuery = new BoolQuery();
             $boolQuery = static::addWheres($builder, $boolQuery);
