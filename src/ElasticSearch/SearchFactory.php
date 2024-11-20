@@ -2,6 +2,7 @@
 
 namespace Matchish\ScoutElasticSearch\ElasticSearch;
 
+use Illuminate\Support\Arr;
 use Laravel\Scout\Builder;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
@@ -15,11 +16,12 @@ final class SearchFactory
 {
     /**
      * @param  Builder  $builder
-     * @param  array  $options
+     * @param  array  $enforceOptions
      * @return Search
      */
-    public static function create(Builder $builder, array $options = []): Search
+    public static function create(Builder $builder, array $enforceOptions = []): Search
     {
+        $options = static::prepareOptions($builder, $enforceOptions);
         $search = new Search();
         if($builder->query instanceof BuilderInterface){
             $query = $builder->query;
@@ -30,6 +32,7 @@ final class SearchFactory
             $boolQuery = new BoolQuery();
             $boolQuery = static::addWheres($builder, $boolQuery);
             $boolQuery = static::addWhereIns($builder, $boolQuery);
+            $boolQuery = static::addWhereNotIns($builder, $boolQuery);
             if (! empty($builder->query)) {
                 $boolQuery->add($query, BoolQuery::MUST);
             }
@@ -61,7 +64,7 @@ final class SearchFactory
      */
     private static function hasWhereFilters($builder): bool
     {
-        return static::hasWheres($builder) || static::hasWhereIns($builder);
+        return static::hasWheres($builder) || static::hasWhereIns($builder) || static::hasWhereNotIns($builder);
     }
 
     /**
@@ -101,6 +104,22 @@ final class SearchFactory
 
     /**
      * @param  Builder  $builder
+     * @param  BoolQuery  $boolQuery
+     * @return BoolQuery
+     */
+    private static function addWhereNotIns($builder, $boolQuery): BoolQuery
+    {
+        if (static::hasWhereNotIns($builder)) {
+            foreach ($builder->whereNotIns as $field => $arrayOfValues) {
+                $boolQuery->add(new TermsQuery((string) $field, $arrayOfValues), BoolQuery::MUST_NOT);
+            }
+        }
+
+        return $boolQuery;
+    }
+
+    /**
+     * @param  Builder  $builder
      * @return bool
      */
     private static function hasWheres($builder): bool
@@ -115,5 +134,32 @@ final class SearchFactory
     private static function hasWhereIns($builder): bool
     {
         return isset($builder->whereIns) && ! empty($builder->whereIns);
+    }
+
+    /**
+     * @param  Builder  $builder
+     * @return bool
+     */
+    private static function hasWhereNotIns($builder): bool
+    {
+        return isset($builder->whereNotIns) && ! empty($builder->whereNotIns);
+    }
+
+    private static function prepareOptions(Builder $builder, array $enforceOptions = []): array
+    {
+        $options = [];
+
+        if (isset($builder->limit)) {
+            $options['size'] = $builder->limit;
+        }
+
+        return array_merge($options, self::supportedOptions($builder), $enforceOptions);
+    }
+
+    private static function supportedOptions(Builder $builder): array
+    {
+        return Arr::only($builder->options, [
+            'from',
+        ]);
     }
 }

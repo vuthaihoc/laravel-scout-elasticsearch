@@ -1,6 +1,10 @@
 <p align="center">
-  <a href="https://savelife.in.ua/en/donate/">
-    <img alt="Support Ukraine" src="http://supportua.org.ua/wp-content/uploads/2015/05/content-logo-main.png" >
+    <h1>Stay with Ukraine</h1>
+    <p><a href="https://u24.gov.ua/robots_fight">UNITED24</a> launches the first fundraiser towards terrestrial robotic platforms. Squads of robots will save the lives of our military and civilians. They will become logistics devices, tow trucks, minelayers and deminers, as well as self-destructive robots. They will fight alongside people and for people.
+
+The first robots are already proving their effectiveness on the battlefield. There will be more of them soon. Many more.</p>
+  <a href="https://u24.gov.ua/robots_fight">
+    <img alt="Support Ukraine" src="https://files.u24.gov.ua/pages/robotsFight/_processed/robots-og-en.jpg" >
   </a>
 <!--   <a href="https://github.com/matchish/laravel-scout-elasticsearch">
     <img alt="Scout ElasticSearch" src="https://raw.githubusercontent.com/matchish/laravel-scout-elasticsearch/master/docs/banner.svg?sanitize=true" >
@@ -27,8 +31,6 @@ It’s built on top of the latest release of [Laravel Scout](https://laravel.com
 package. Using this package, you are free to take advantage of all of Laravel Scout’s
 great features, and at the same time leverage the complete set of ElasticSearch’s search experience.
 
-If you need any help, [stack overflow](https://stackoverflow.com/questions/tagged/laravel-scout%20laravel%20elasticsearch) is the preferred and recommended way to ask support questions.
-
 ## :two_hearts: Features  
 Don't forget to :star: the package if you like it. :pray:
 
@@ -37,10 +39,10 @@ Don't forget to :star: the package if you like it. :pray:
 - [Search amongst multiple models](#search-amongst-multiple-models)
 - [**Zero downtime** reimport](#zero-downtime-reimport) - it’s a breeze to import data in production.
 - [Eager load relations](#eager-load) - speed up your import.
+- Parallel import to make your import as fast as possible (in [alpha version](https://github.com/matchish/laravel-scout-elasticsearch/releases/tag/8.0.0-alpha.1) for now)
 - Import all searchable models at once.
 - A fully configurable mapping for each model.
 - Full power of ElasticSearch in your queries.
-
 ## :warning: Requirements
 
 - PHP version >= 8.0
@@ -56,15 +58,17 @@ Don't forget to :star: the package if you like it. :pray:
 
 Use composer to install the package:
 
-`composer require matchish/laravel-scout-elasticsearch`
+```
+composer require matchish/laravel-scout-elasticsearch
+```
 
 Set env variables
 ```
 SCOUT_DRIVER=Matchish\ScoutElasticSearch\Engines\ElasticSearchEngine
 ```
 
-The package uses `\ElasticSearch\Client` from official package, but does not try to configure it, 
-so feel free do it in your app service provider. 
+The package uses `\ElasticSearch\Client` from official package, but does not try to configure it 
+beyond connection configuration, so feel free do it in your app service provider. 
 But if you don't want to do it right now, 
 you can use `Matchish\ElasticSearchServiceProvider` from the package.  
 Register the provider, adding to `config/app.php`
@@ -83,6 +87,12 @@ or use commas as separator for additional nodes
 ```
 ELASTICSEARCH_HOST=host:port,host:port
 ```
+
+You can disable SSL verification by setting the following in your env
+```
+ELASTICSEARCH_SSL_VERIFICATION=false
+```
+
 And publish config example for elasticsearch  
 `php artisan vendor:publish --tag config`
 
@@ -266,15 +276,34 @@ Product::search()
 
 Full list of ElasticSearch terms is in `vendor/handcraftedinthealps/elasticsearch-dsl/src/Query/TermLevel`.
 
+### Pagination
+The engine supports [Elasticsearch pagination](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html)
+with [Scout Builder pagination](https://laravel.com/docs/11.x/scout#pagination) or by setting page sizes 
+and offsets using the `->take($size)` method and `->options(['from' => $from])`.
+
+> Caution : Builder pagination takes precedence over the `take()` and `options()` setting.
+
+For example:
+
+```php
+Product::search()
+    ->take(20)
+    ->options([
+        'from' => 20,
+    ])
+    ->paginate(50);
+```
+This will return the first 50 results, ignoring the specified offset.
+
 ### Search amongst multiple models
 You can do it with `MixedSearch` class, just pass indices names separated by commas to the `within` method.
 ```php
 MixedSearch::search('title:Barcelona or to:Barcelona')
-    within(implode(',', [
+    ->within(implode(',', [
         (new Ticket())->searchableAs(),
         (new Book())->searchableAs(),
     ]))
-->get();
+    ->get();
 ```
 In this example you will get collection of `Ticket` and `Book` models where ticket's arrival city or
 book title is `Barcelona`

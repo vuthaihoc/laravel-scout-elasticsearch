@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 
+## [7.9.0] - 2024-11-14
+### Fixed
+- [Using pagination with custom query in Scout Builder](https://github.com/matchish/laravel-scout-elasticsearch/pull/290).
+### Added
+- [Using `options()` of a builder](https://github.com/matchish/laravel-scout-elasticsearch/issues/252) for set `from` parameter.
+- Supporting `take()` method of builder for setting response `size`.
+
+## [7.8.0] - 2024-06-24
+### Added
+- [Added supports of whereNotIn condition](https://github.com/matchish/laravel-scout-elasticsearch/pull/282).
+
+## [7.6.2] - 2024-06-24
+### Fixed
+- [Change if conditions order in soft deletes check for compatibility](https://github.com/matchish/laravel-scout-elasticsearch/pull/282).
+
+## [7.6.1] - 2024-05-14
+### Fixed
+- fix for [parser incompatibility](https://github.com/matchish/laravel-scout-elasticsearch/issues/273)
+
 ## [7.6.0] - 2024-02-23
 ### Added
 - Add one more condition. If the search() method does not pass any parameter, there is no need to add QueryStringQuery object.
