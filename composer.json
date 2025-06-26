@@ -1,5 +1,5 @@
 {
-    "name": "matchish/laravel-scout-elasticsearch",
+    "name": "hocvt/laravel-scout-elasticsearch",
     "description": "Search among multiple models with ElasticSearch and Laravel Scout",
     "keywords": [
         "laravel",
