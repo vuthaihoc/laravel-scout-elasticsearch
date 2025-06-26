@@ -7,6 +7,7 @@ use Laravel\Scout\Builder;
 use ONGR\ElasticsearchDSL\BuilderInterface;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\QueryStringQuery;
+use ONGR\ElasticsearchDSL\Query\Specialized\MoreLikeThisQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Search;
@@ -29,7 +30,11 @@ final class SearchFactory
             $boolQuery = static::addWhereIns($builder, $boolQuery);
             $boolQuery = static::addWhereNotIns($builder, $boolQuery);
             if (! empty($builder->query)) {
-                $boolQuery->add(new QueryStringQuery($builder->query));
+                if($builder->query instanceof BuilderInterface){
+                    $boolQuery->add($builder->query);
+                }else{
+                    $boolQuery->add(new QueryStringQuery($builder->query));
+                }
             }
             $search->addQuery($boolQuery);
         } elseif (! empty($builder->query)) {
