@@ -30,7 +30,7 @@ final class ElasticSearchEngine extends Engine
     /**
      * Create a new engine instance.
      *
-     * @param  Client  $elasticsearch
+     * @param Client $elasticsearch
      * @return void
      */
     public function __construct(Client $elasticsearch)
@@ -123,9 +123,9 @@ final class ElasticSearchEngine extends Engine
     /**
      * Map the given results to instances of the given model via a lazy collection.
      *
-     * @param  \Laravel\Scout\Builder  $builder
-     * @param  mixed  $results
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param \Laravel\Scout\Builder $builder
+     * @param mixed $results
+     * @param \Illuminate\Database\Eloquent\Model $model
      * @return \Illuminate\Support\LazyCollection
      */
     public function lazyMap(Builder $builder, $results, $model)
@@ -153,8 +153,8 @@ final class ElasticSearchEngine extends Engine
     /**
      * Create a search index.
      *
-     * @param  string  $name
-     * @param  array  $options
+     * @param string $name
+     * @param array $options
      * @return mixed
      */
     public function createIndex($name, array $options = [])
@@ -165,26 +165,24 @@ final class ElasticSearchEngine extends Engine
     /**
      * Delete a search index.
      *
-     * @param  string  $name
+     * @param string $name
      * @return mixed
      */
     public function deleteIndex($name)
     {
-        // 1. Ki?m tra xem $name l� Index th?t hay l� Alias
-        $response = $this->elasticsearch->indices()->getAlias(['name' => $name])->asArray();
+        if ($this->elasticsearch->indices()->existsAlias(['name' => $name])->asBool()) {
+            $response = $this->elasticsearch->indices()->getAlias(['name' => $name])->asArray();
 
-        // N?u $response kh�ng tr?ng, ngh?a l� $name l� m?t Alias
-        if (!empty($response)) {
-            // L?y danh s�ch c�c index th?t ?ang tr? b?i alias n�y
-            $concreteIndices = array_keys($response);
+            if (!empty($response)) {
+                $concreteIndices = array_keys($response);
 
-            foreach ($concreteIndices as $concreteIndex) {
-                $this->elasticsearch->indices()->delete(['index' => $concreteIndex]);
+                foreach ($concreteIndices as $concreteIndex) {
+                    $this->elasticsearch->indices()->delete(['index' => $concreteIndex]);
+                }
+                return true;
             }
-            return true;
         }
 
-        // 2. N?u kh�ng ph?i alias, x�a nh? b�nh th??ng
         if ($this->elasticsearch->indices()->exists(['index' => $name])->asBool()) {
             return $this->elasticsearch->indices()->delete(['index' => $name])->asArray();
         }
@@ -201,8 +199,8 @@ final class ElasticSearchEngine extends Engine
     }
 
     /**
-     * @param  BaseBuilder  $builder
-     * @param  array  $options
+     * @param BaseBuilder $builder
+     * @param array $options
      * @return SearchResults|mixed
      */
     private function performSearch(BaseBuilder $builder, $options = [])
