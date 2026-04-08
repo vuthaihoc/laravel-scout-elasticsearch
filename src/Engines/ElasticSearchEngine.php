@@ -170,7 +170,26 @@ final class ElasticSearchEngine extends Engine
      */
     public function deleteIndex($name)
     {
-        throw new \Error('Not implemented');
+        // 1. Ki?m tra xem $name l� Index th?t hay l� Alias
+        $response = $this->elasticsearch->indices()->getAlias(['name' => $name])->asArray();
+
+        // N?u $response kh�ng tr?ng, ngh?a l� $name l� m?t Alias
+        if (!empty($response)) {
+            // L?y danh s�ch c�c index th?t ?ang tr? b?i alias n�y
+            $concreteIndices = array_keys($response);
+
+            foreach ($concreteIndices as $concreteIndex) {
+                $this->elasticsearch->indices()->delete(['index' => $concreteIndex]);
+            }
+            return true;
+        }
+
+        // 2. N?u kh�ng ph?i alias, x�a nh? b�nh th??ng
+        if ($this->elasticsearch->indices()->exists(['index' => $name])->asBool()) {
+            return $this->elasticsearch->indices()->delete(['index' => $name])->asArray();
+        }
+
+        return null;
     }
 
     /**
