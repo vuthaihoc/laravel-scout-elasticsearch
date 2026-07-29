@@ -18,7 +18,10 @@ final class ImportCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected $signature = 'scout:import {searchable?* : The name of the searchable}';
+    protected $signature = 'scout:import 
+            {model?* : The name of the searchable} 
+            {--fresh : Flush the index before importing}
+            {--c|chunk= : The number of records to import at a time (Defaults to configuration value: `scout.chunk.searchable`)}';
     /**
      * {@inheritdoc}
      */
@@ -29,7 +32,7 @@ final class ImportCommand extends Command
      */
     public function handle(): void
     {
-        $this->searchableList((array) $this->argument('searchable'))
+        $this->searchableList((array) $this->argument('model'))
         ->each(function ($searchable) {
             $this->import($searchable);
         });
